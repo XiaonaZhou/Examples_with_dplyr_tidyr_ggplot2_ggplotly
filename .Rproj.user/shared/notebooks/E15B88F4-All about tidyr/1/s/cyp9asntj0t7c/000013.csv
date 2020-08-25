@@ -1,0 +1,3 @@
+"0",""
+"0","# Method 3"
+"0","gather(state_pop_by_year, ""year"", ""population"", -name) # -name, exculde column name, include all others"

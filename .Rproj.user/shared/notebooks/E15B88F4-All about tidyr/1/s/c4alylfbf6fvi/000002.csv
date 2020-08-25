@@ -1,0 +1,3 @@
+"0","states_wide <- states %>% "
+"0","  spread(dimension,stat)"
+"0","states_wide"

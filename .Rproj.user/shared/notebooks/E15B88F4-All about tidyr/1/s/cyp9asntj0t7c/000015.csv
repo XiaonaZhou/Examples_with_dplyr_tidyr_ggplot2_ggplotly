@@ -1,0 +1,4 @@
+"0",""
+"0","# Method 4"
+"0",""
+"0","gather(state_pop_by_year, matches('^197?'), key = ""year"", value=""population"")"

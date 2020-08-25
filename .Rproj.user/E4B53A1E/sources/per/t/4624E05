@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1590981827917.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4106929418",
+    "id" : "4624E05",
+    "lastKnownWriteTime" : 1588190070,
+    "last_content_update" : 1588190070,
+    "path" : "C:/Users/xiaon/Desktop/All about dplyr_R/All about ggplot2 and plotly.Rmd",
+    "project_path" : "All about ggplot2 and plotly.Rmd",
+    "properties" : {
+        "cursorPosition" : "7,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

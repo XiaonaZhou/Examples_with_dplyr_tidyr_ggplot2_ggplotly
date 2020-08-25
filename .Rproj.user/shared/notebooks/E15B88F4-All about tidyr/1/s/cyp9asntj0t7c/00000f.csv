@@ -1,0 +1,2 @@
+"0","# Method 1 "
+"0","gather(state_pop_by_year, ""year"", ""population"", '1977', '1978', '1979')"

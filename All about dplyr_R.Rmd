@@ -1,0 +1,214 @@
+---
+title: "All about dyplr"
+author: "Xiaona Zhou"
+date: "4/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r global, warning=FALSE, include=FALSE}
+library(dplyr)
+library(nycflights13)
+```
+
+```{r flight1, message=TRUE, warning=FALSE}
+summary(flights)
+```
+
+
+## filter()
+filter: select a subset of rows in a data frame.
+filter(data, conditions separeted by commas)
+```{r filter1, message=TRUE, warning=FALSE}
+fl <- flights %>%
+  filter(month == 11, day == 3, carrier == 'AA')
+head(fl)
+  
+```
+
+```{r filter2, message=TRUE, warning=FALSE}
+mtcars %>%
+  filter(mpg > 20, cyl == 6)
+  
+```
+
+
+## slice()
+slice: select rows by position 
+slice(data, start_row_# : end_row_#)
+
+```{r slice1, message=TRUE, warning=FALSE}
+flights %>% slice(1:10)
+```
+
+
+## arrange()
+
+arrange: reorder the rows
+arrange(data, year, month,day, arr_time): order by year, month, day, arr_time
+Use desc(variable_name) if descending order is wanted 
+
+```{r arrange1, message=TRUE, warning=FALSE}
+arr <- flights %>% arrange(year, month,day,desc(arr_time))
+head(arr)
+```
+
+```{r arrange2, message=TRUE, warning=FALSE}
+arr_1 <- mtcars %>% arrange(cyl, desc(wt))
+head(arr_1)
+```
+
+## select
+select: select the columns wanted 
+select(data, column_names)
+
+```{r select1, message=TRUE, warning=FALSE}
+sele <- flights %>% select(carrier, month,day, arr_time)
+head(sele)
+```
+
+
+```{r select2, message=TRUE, warning=FALSE}
+flights %>% select(carrier, month,day, arr_time)
+head(sele)
+```
+
+
+```{r select3, message=TRUE, warning=FALSE}
+mtcars %>% select(mpg,hp)
+
+```
+
+
+## rename
+
+rename: rename the columns 
+rename(data, new_column_name = old_column_name)
+
+```{r rename1, message=TRUE, warning=FALSE}
+rename_fl <- flights %>% rename(airline_carrier = carrier) %>% 
+  select(airline_carrier)
+head(rename_fl)
+```
+
+## distinct
+
+distinct: select distinct values or unique values in a column
+distinct(select(data, column_name))
+
+```{r distinct1, message=TRUE, warning=FALSE}
+distinct(select(flights, carrier))
+# or 
+flights %>% distinct(carrier)
+
+```
+
+```{r distinct2, message=TRUE, warning=FALSE}
+
+mtcars %>% distinct(gear)
+
+```
+
+
+## mutate & transmute
+
+mutate: add new columns that are functions of existing columns
+mutate(data, new_column_name = old_column_name - another_column_name)
+transmute: simaler to mutate but contains only the new column that has been created
+
+```{r mutate1, message=TRUE, warning=FALSE}
+mutate_fl <- flights %>% mutate(overall_delay = arr_delay - dep_delay) %>% select(overall_delay)
+head(mutate_fl)
+
+transmute_fl <- flights%>% transmute(overall_delay = arr_delay - dep_delay) 
+head(transmute_fl)
+```
+
+```{r mutate2, message=TRUE, warning=FALSE}
+mutate_car <- mtcars %>% mutate(Performance = hp/wt) 
+head(mutate_car)
+```
+
+## summarise
+
+summarise: collapse data frames into single rows using some sort of function that aggregates a result.
+summarise(data, new_column_name = mean(column_name, na.rm = TRUE))
+
+
+```{r summarise1, message=TRUE, warning=FALSE}
+flights %>% summarise(avg_air_time = mean(air_time, na.rm = TRUE))
+# avg_air_time contains the average air_time with NA rows removed (that's what 'na.rm = TRUE' do) 
+
+#Another Example
+
+flights %>% summarise(total_air_time = sum(air_time, na.rm = TRUE))
+```
+
+```{r summarise2, message=TRUE, warning=FALSE}
+mtcars %>% summarise(avg_mpg = mean(mpg)) #the mean mpg
+
+mtcars %>% filter(cyl == 6) %>% 
+  summarise(std_hp = sd(hp))  #the mean hp value for cars with 6 cylinders.
+
+```
+
+
+## sample_n & sample_frac
+
+sample_n: select random number of rows
+sample_n(data, # rows to select)
+sample_frac: select a fraction of the rows
+sample_frac(data, fraction of rows to select)
+
+```{r sample1, message=TRUE, warning=FALSE}
+sample_n(flights, 10) # randomly select 10 rows from the data frame
+
+sample_frac(flights,0.1) #randomly select 10% of the rows from data frame
+
+```
+
+
+# MoneyBall Example 
+
+#### The goal is to find three  replacement player with following constraints.
+
+* The total combined salary of the three players can not exceed 15 million dollars.
+* Their combined number of At Bats (AB) needs to be equal to or greater than the lost players(1469).
+* Their mean OBP had to equal to or greater than the mean OBP of the lost players(1.091606). 
+Note: This is time sensetive event, so use data from 2001. 
+
+
+1. Merge batting and salary data sets.
+```{r moneyabll, message=TRUE, warning= FALSE}
+batting <-  read.csv('Batting.csv')
+# calculate OBP, HBP, X1B, SLG
+batting$OBP <- (batting$H + batting$BB + batting$HBP)/(batting$AB + batting$BB + batting$HBP + batting$SF)
+
+batting$x1B <- (batting$H - batting$X2B - batting$X3B - batting$HR)
+batting$SLG <- (batting$x1B + 2*batting$X2B + 3*batting$X3B + 4*batting$HR)/batting$AB
+salary <- read.csv('Salaries.csv')
+bat_2001 <- batting %>% 
+  filter(yearID ==2001)
+sal_2001 <- salary %>% 
+  filter(yearID ==2001)
+bat_sal <- merge(bat_2001,sal_2001, by = c('playerID', 'yearID' ))
+
+# lost players' info 
+lost_players <- subset(bat_sal,playerID %in% c('giambja01','damonjo01','saenzol01') )
+
+possible.repl <- bat_sal %>% filter(!(playerID %in% c('giambja01','damonjo01','saenzol01')), AB > 500) %>% 
+  select(playerID, AB, OBP,salary) %>% 
+  arrange(desc(OBP))
+
+# check if the first three players quanlify
+
+sum(possible.repl$AB[1:3]) > sum(lost_players$AB[1:3]) 
+sum(possible.repl$OBP[1:3]) > sum(lost_players$OBP[1:3])
+
+# Three replacement players are 
+
+possible.repl$playerID[1:3]
+```

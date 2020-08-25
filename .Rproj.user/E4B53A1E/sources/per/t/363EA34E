@@ -1,0 +1,27 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1587945883237.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4265705907",
+    "id" : "363EA34E",
+    "lastKnownWriteTime" : 1588369136,
+    "last_content_update" : 1588369136603,
+    "path" : "C:/Users/xiaon/Desktop/All about dplyr_R/All about tidyr.Rmd",
+    "project_path" : "All about tidyr.Rmd",
+    "properties" : {
+        "cursorPosition" : "192,77",
+        "ignored_words" : "tidyr,Xiaona,abc,xyz\n",
+        "last_setup_crc32" : "",
+        "scrollLine" : "182"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
