@@ -1,0 +1,226 @@
+---
+title: "Examples on using functions from dyplr package"
+author: "Xiaona Zhou"
+date: "4/19/2020"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '3'
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview
+This R Markdown file contains examples on how to use various functions from `dyplr` package. I used `flights` data set from `nycflights13` package, and `mtcars` data set to demonstrate the usage of different functions. 
+
+# Set up
+
+Load `dplyr` and `nycflights13` packages. 
+```{r global, warning=FALSE}
+library(dplyr)
+library(nycflights13)
+```
+
+Summary of the `flights`data set. 
+```{r flight1, message=TRUE, warning=FALSE}
+summary(flights)
+```
+
+
+Summary of the `mtcars` data set. 
+
+```{r}
+summary(mtcars)
+```
+
+# Examples
+
+In the following section, you can found examples on how to use each functions with an brief explanation of the function, and the requirements for the inputs. 
+
+## filter()
+filter: select a subset of rows in a data frame.
+filter(data, conditions separated by commas)
+
+Example 1: select flights where `month` = 11, `day` = 3, and `carrier` name is 'AA'
+```{r filter1, message=TRUE, warning=FALSE}
+fl <- flights %>%
+  filter(month == 11, day == 3, carrier == 'AA')
+head(fl)
+  
+```
+
+
+Example 2: select cars where `mpg` > 20 and `cyl` = 6
+```{r filter2, message=TRUE, warning=FALSE}
+mtcars %>%
+  filter(mpg > 20, cyl == 6)
+  
+```
+
+
+## slice()
+slice: select rows by position 
+slice(data, start_row_# : end_row_#)
+
+Example 1: select the first 10 rows from `flights`
+```{r slice1, message=TRUE, warning=FALSE}
+flights %>% slice(1:10)
+```
+
+
+## arrange()
+
+arrange: reorder the rows
+arrange(data, year, month,day, arr_time): order by year, month, day, arr_time
+Use desc(variable_name) if descending order is wanted 
+
+Example 1: arrange the data by `cyl` in ascending order 
+
+```{r arrange2, message=TRUE, warning=FALSE}
+arr_1 <- mtcars %>% arrange(cyl)
+head(arr_1)
+```
+
+Example 2: arrange the data first by `year`, and then by `month`, by `day`, lastly by `arr_time` (in descending order)
+```{r arrange1, message=TRUE, warning=FALSE}
+arr <- flights %>% arrange(year, month,day,desc(arr_time))
+head(arr)
+```
+
+
+## select
+
+select: select the columns wanted 
+select(data, column_names)
+
+Example 1: select columns `carrier` and `month`
+```{r select1, message=TRUE, warning=FALSE}
+sele <- flights %>% select(carrier, month,day)
+head(sele)
+```
+
+Example 2: select columns `mpg`, `hp`
+
+```{r select2, message=TRUE, warning=FALSE}
+mtcars %>% select(mpg,hp)
+
+```
+
+
+## rename
+
+rename: rename the columns 
+rename(data, new_column_name = old_column_name)
+
+Example 1: change column name `carrier` to `airline_carrier`. Note: the order is new column name = old column name, not the other way around. 
+```{r rename1, message=TRUE, warning=FALSE}
+rename_fl <- flights %>% rename(airline_carrier = carrier) %>% 
+  select(airline_carrier)
+head(rename_fl)
+```
+
+## distinct
+
+distinct: select distinct values or unique values in a column
+distinct(select(data, column_name))
+
+Example 1: return all carrier names without repetition. 
+```{r distinct1, message=TRUE, warning=FALSE}
+distinct(select(flights, carrier))
+# or 
+flights %>% distinct(carrier)
+
+```
+
+
+## mutate & transmute
+
+mutate: add new columns that are functions of existing columns
+mutate(data, new_column_name = column_name - another_column_name)
+
+transmute: similar to mutate but contains only the new column that has been created
+
+Example 1: expected total travel time = schedule arrival time - schedule departure time. 
+
+```{r mutate1, message=TRUE, warning=FALSE}
+mutate_fl <- flights %>% 
+  mutate(total_time = sched_arr_time - sched_dep_time) 
+head(mutate_fl)
+```
+
+Same as above but with only the newly created column `total_time`
+```{r}
+transmute_fl <- flights%>% 
+  transmute(total_time = sched_arr_time - sched_dep_time) 
+head(transmute_fl)
+```
+
+Example 2: create a new column `Performance` by dividing `hp` by `wt`. 
+```{r mutate2, message=TRUE, warning=FALSE}
+mutate_car <- mtcars %>%
+  mutate(Performance = hp/wt) 
+head(mutate_car)
+```
+
+## summarise
+
+summarise: collapse data frames into single rows using some sort of function that aggregates a result.
+summarise(data, new_column_name = mean(column_name, na.rm = TRUE))
+
+Example 1: calculate the mean `air_time` with `summarise` and `mean`. 
+
+Note: avg_air_time contains the average air_time with rows contain NA removed (that's what 'na.rm = TRUE' do) 
+```{r summarise1, message=TRUE, warning=FALSE}
+flights %>% summarise(avg_air_time = mean(air_time, na.rm = TRUE))
+```
+
+
+Example 2: calculate the total `air_time` with `summarise` and `sum`
+
+```{r}
+flights %>% summarise(total_air_time = sum(air_time, na.rm = TRUE))
+```
+
+Example 3: calculate the average `mpg` across entire data set. 
+
+```{r summarise2, message=TRUE, warning=FALSE}
+mtcars %>% summarise(avg_mpg = mean(mpg)) #the mean mpg
+```
+
+Example 4: calculate the standard deviation pf hp value for cars with 6 cylinders.
+
+```{r}
+mtcars %>% filter(cyl == 6) %>% 
+  summarise(std_hp = sd(hp))  #the standard deviation pf hp value for cars with 6 cylinders.
+
+```
+
+
+
+## sample_n & sample_frac
+
+sample_n: select random number of rows
+sample_n(data, # rows to select)
+
+
+sample_frac: select a fraction of the rows
+sample_frac(data, fraction of rows to select)
+
+Example 1: randomly select 10 rows from the data frame
+```{r sample1, message=TRUE, warning=FALSE}
+sample_n(flights, 10)
+```
+
+Example 2: randomly select 10% of the rows from data frame
+
+```{r}
+sample_frac(flights,0.1)
+```
+
+To be continued...

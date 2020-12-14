@@ -1,3 +1,0 @@
-"0",""
-"0","# Method 2"
-"0","gather(state_pop_by_year, ""year"", ""population"", matches('^197?'))# '^197?' : starting with 197"

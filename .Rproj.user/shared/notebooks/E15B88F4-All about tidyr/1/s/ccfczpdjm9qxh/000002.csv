@@ -1,7 +1,0 @@
-"0","state_pop_by_year <- states_wide %>%"
-"0","    mutate(year_1977 = Population,"
-"0","           year_1978 = 1.05 * year_1977,"
-"0","           year_1979 = 1.05 * year_1978) %>%"
-"0","    select(name, year_1977, year_1978, year_1979)"
-"0","names(state_pop_by_year) <- gsub('year_', '', names(state_pop_by_year))"
-"0","state_pop_by_year"

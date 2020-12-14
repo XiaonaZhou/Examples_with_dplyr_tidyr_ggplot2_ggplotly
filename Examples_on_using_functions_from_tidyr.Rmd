@@ -1,0 +1,169 @@
+---
+title: "Examples on using functions from dyplr package"
+author: "Xiaona Zhou"
+date: "4/19/2020"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '3'
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview
+
+This R Markdown file contains examples on how to use various functions from `tidyr` package. 
+
+# Set up
+
+Import packages
+
+```{r global, message=FALSE, warning=FALSE}
+library(tidyr)
+library(tidyverse)
+library(data.table)
+```
+
+Make two toy data set `df` and `stocks` for demonstration the functions
+
+```{r}
+comp <- c(1,1,1,2,2,2,3,3,3)
+yr <- c(1998,1999,2000,1998,1999,2000,1998,1999,2000)
+q1 <- runif(9, min=0, max=100)
+q2 <- runif(9, min=0, max=100)
+q3 <- runif(9, min=0, max=100)
+q4 <- runif(9, min=0, max=100)
+
+df <- data.frame(comp=comp,year=yr,Qtr1 = q1,Qtr2 = q2,Qtr3 = q3,Qtr4 = q4)
+head(df)
+
+stocks <- data.frame(
+  time = as.Date('2009-01-01') + 0:9,
+  X = rnorm(10, 0, 1),
+  Y = rnorm(10, 0, 2),
+  Z = rnorm(10, 0, 4)
+)
+head(stocks)
+```
+
+# Examples
+
+In the following section, you can found examples on how to use each functions with an brief explanation of the function, and the requirements for the inputs.
+
+## gather
+
+gather: restructure the data 
+gather(data, key, value, column_names)
+
+Example 1: stack `Qrt1`, `Qrt2`,`Qrt3`,`Qrt4` into a new column `Quarter`.
+```{r gather1, message=FALSE, warning=FALSE}
+df_gathered <- df %>% 
+  gather(Quarter, Revenue, Qtr1:Qtr4)
+
+head(df_gathered)
+```
+
+
+Example 2: stack `X`, `Y`, `Z` into a new column `stock`
+```{r gather2, message=FALSE, warning=FALSE}
+stock_gathered <- stocks %>% 
+  gather(stock, price, X:Z)
+head(stock_gathered)
+```
+
+## spread
+
+spread: undo gather()
+spread(column_to_split_on, value)
+
+Example 1: convert `stock_gathered` back to original format 
+```{r spread, message=FALSE, warning=FALSE}
+
+stock_gathered %>% spread(stock,price)# split different values within column 
+#           stock into different columns, fill in corresponding price values. 
+```
+
+Example 2: spread the data set out base on time
+```{r}
+stock_gathered %>% spread(time, price)# split different values within column 
+      #time into different columns, fill in corresponding price values. 
+```
+
+
+## separate
+
+separate: turn a single character column into multiple columns
+separate(data = data, col = target_column_name, into = c('new_col_name_1','new_col_name2'))
+Note: by default, it is separated by non alphanumeric values, like '.' and '-'
+
+Create a toy data set with only one column x
+```{r separate1, message=FALSE, warning=FALSE}
+df1 <- data.frame(x = c(NA, "a.x", "b.y", "c.z"))
+df1
+```
+
+Example 1: separate the values in column `x` into two columns `ABC` and `XYZ`. when argument `sep` is not specified, it is separated by non alphanumeric values, like '.' and '-'. See example 2. 
+```{r}
+df1 %>% separate(col = x, into = c("ABC", "XYZ"))
+```
+
+Example 2: separate by '+'
+
+```{r separate2, message=FALSE, warning=FALSE}
+#create another toy data set
+df2 <- data.frame(x= c('1+0', "1+0.5", "1+1", "1+2"))
+df2
+df2_se<- separate(data = df2, col=x, into = c("abc", "xyz"), sep = "([+])")# separate on +
+df2_se
+```
+
+
+## unite
+
+unite: undo separate; combine values in multiple columns into one 
+unite(data = data, col_names_to_be_joined_separated_by_commas, sep = separator to use between joined values.)
+
+Example 1: convert `df2_se` back to `df2` 
+```{r unite, message=FALSE, warning=FALSE}
+df2_se %>% 
+  unite(new_joined, abc,xyz, sep = '+' )
+
+```
+
+
+## Join tables
+1. inner_join(data1, data2) keeps the common rows and drops other rows
+2. left_join(data1, data2) keeps all the rows in data1 add the extra columns from data2 if they are in common, put NA when no data available.
+Note: right_join() is similar to left. Same result returns when switch data1 and data 2. 
+
+3. full_join(data1, data2) keeps all rows from both data set, use NA when no data is available. 
+
+4. anti_join: shows the rows in the left table that don't have a match in the right one.
+Note: Most commonly you'd use it to check that rows weren't dropped from the left table.For instance, you could check that the number of rows in an anti join is zero.
+
+
+```{r }
+# create two tables with a common column name x1
+
+df1 <- tibble(x1 = c('A','B','C','E','A'),
+              x2 = c(1,2,3,4,5))
+df2 <- tibble(x1 = c('A','B','D'),
+              x3 = c(T,F,T))
+df1
+df2
+inner_join(df1,df2)
+left_join(df1,df2)
+left_join(df2, df1)
+full_join(df1, df2)
+anti_join(df1,df2)#shows the rows that have been dropped by inner_join()
+nrow(anti_join(df1,df2))==0
+```
+
+
+To be continued...

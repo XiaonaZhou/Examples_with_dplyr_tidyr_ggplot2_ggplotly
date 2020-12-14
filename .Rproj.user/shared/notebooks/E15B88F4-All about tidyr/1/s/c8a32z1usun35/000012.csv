@@ -1,8 +1,0 @@
-"0","nrow(anti_join(df1,df2))==0
-"
-"2","Joining, by = ""x1""
-"
-"1","[1]"
-"1"," FALSE"
-"1","
-"

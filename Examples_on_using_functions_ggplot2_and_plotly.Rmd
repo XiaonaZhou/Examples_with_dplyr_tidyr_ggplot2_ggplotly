@@ -1,0 +1,438 @@
+---
+title: "Examples on using functions from ggplot2"
+author: "Xiaona Zhou"
+date: "4/17/2020"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '3'
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview
+
+This R Markdown file contains sample codes for different types of plots that can be generate with `ggplot2` package. 
+
+# Set up
+
+Import packages
+
+```{r global, include=FALSE}
+library(ggplot2)
+library(ggplot2movies)
+library(dplyr)
+library(hexbin)
+library(ggthemes)
+library(plotly)
+```
+
+# Histogram
+
+1. Regular histogram
+
+* `binwidth`: set the width of the bins 
+* `bins`: set the number of bins in the histogram
+* `alpha`: controls transparency. 0 means no fill color, 1 means solid  fill color
+* `color`: color for the edges of the histogram
+* `fill`: filling color in the histogram
+```{r histogram, echo=TRUE, message=FALSE, warning=FALSE}
+# create a histogram with binwidth 0.1, color the edge of the graph with red, color the inside of the histogram with pink, alpha = 0.5 means there's some transparency 
+movies %>% 
+ggplot(aes(x = rating)) +
+  geom_histogram(binwidth = 0.1, color = 'red', fill = 'pink', alpha = 0.5 ) 
+```
+
+2. Better histogram
+
+use count to color the histogram
+
+```{r histogram_better, echo=TRUE, message=FALSE, warning=FALSE}
+library(ggplot2movies)
+library(dplyr)
+
+movies %>% 
+ggplot(aes(x = rating)) +
+  geom_histogram(binwidth = 0.1, aes(fill = ..count..)) 
+```
+
+
+
+# Scatter plot
+
+1. Basic Scatter plot 
+
+* color can also be defined using hex color like '#33CCCC', check https://www.color-hex.com/
+```{r scatter, echo=TRUE, message=FALSE, warning=FALSE}
+mtcars %>% 
+  ggplot(aes(x = wt, y = mpg))+
+  geom_point(size = 5, color = '#33CCCC')
+
+```
+
+2. Change features of the points with variables in Scatter plot 
+
+Example 1.1: change the size of the points with variables in Scatter plot 
+```{r scatter1, echo=TRUE, message=FALSE, warning=FALSE}
+mtcars %>% 
+  ggplot(aes(x = wt, y = mpg)) +
+  geom_point(aes(size = hp))
+```
+
+Example 1.2:
+Note:use factor() because cyl is not continues. cyl contains only even numbers (4,6,8)
+```{r scatter2, echo=TRUE, message=FALSE, warning=FALSE}
+mtcars %>% 
+  ggplot(aes(x = wt, y = mpg)) +
+  geom_point(aes(size = factor(cyl)))
+
+```
+
+Example 2.1: change the shape and color of the points with variables
+```{r scatter3, echo=TRUE, message=FALSE, warning=FALSE}
+mtcars %>% 
+  ggplot(aes(x = wt, y = mpg)) +
+  geom_point(aes(shape = factor(cyl), color = factor(cyl)), size = 4)
+
+```
+
+
+Example 2.2: `scale_color_gradient` sets the colors for the points based on the value of `hp` 
+```{r scatter4, echo=TRUE, message=FALSE, warning=FALSE}
+mtcars %>% 
+  ggplot(aes(x = wt, y = mpg)) +
+  geom_point(aes(color = hp),size = 5) + 
+  scale_color_gradient(low = 'blue', high = 'red')
+
+```
+
+
+Example 3: `geom_smooth` adds a smooth line that fits the points
+```{r scatter5, echo=TRUE, message=FALSE, warning=FALSE}
+txhousing %>% 
+  ggplot(aes(x = sales, y = volume)) +
+  geom_point(aes(color = sales), alpha = 0.6) +
+  scale_color_gradient(low = 'blue', high = 'red')+
+  geom_smooth(color = 'green')
+
+```
+
+
+
+# Bar plot
+
+Example 1:
+
+```{r bar1, echo=TRUE, message=FALSE, warning=FALSE}
+mpg %>% 
+  ggplot(aes(x = class)) +
+  geom_bar( color = 'blue', fill = 'blue')
+```
+
+Example 2: 
+```{r}
+mpg %>% 
+  ggplot(aes(x = hwy)) +
+  geom_bar(fill = '#F59D92')
+```
+
+
+Example 3: use `fill = drv` to add more information to the bar plot; 
+
+```{r bar2, echo=TRUE, message=FALSE, warning=FALSE}
+mpg %>% 
+  ggplot(aes(x = class)) +
+  geom_bar(aes(fill = drv))
+```
+
+Example 4: use `coord_flip` to switch x and y axis. 
+
+```{r}
+
+mpg %>% 
+  ggplot(aes(x = manufacturer)) +
+  geom_bar(aes(fill = factor(cyl))) +
+  coord_flip()
+```
+
+
+
+Example 5: `position = 'dodge'` gives multiple bar plot side by side instead of stacking 
+
+```{r bar3, echo=TRUE, message=FALSE, warning=FALSE}
+mpg %>% 
+  ggplot(aes(x = class)) +
+  geom_bar(aes(fill = drv), position = 'dodge') 
+```
+
+
+Example 6: `position = 'fill'` shows the percentage of each class
+
+```{r bar4, echo=TRUE, message=FALSE, warning=FALSE}
+mpg %>% 
+  ggplot(aes(x = class)) +
+  geom_bar(aes(fill = drv), position = 'fill') 
+```
+
+
+
+# Boxplot
+
+Example 1: `geom_bocplot` makes box plot
+
+```{r boxplot1 , echo=TRUE, message=FALSE, warning=FALSE}
+mtcars %>% 
+  ggplot(aes(x = factor(cyl), y = mpg)) +
+  geom_boxplot()
+```
+
+
+Example 2:
+
+```{r boxplot2 , echo=TRUE, message=FALSE, warning=FALSE}
+mtcars %>% 
+  ggplot(aes(x = factor(cyl), y = mpg)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+
+Example 3: use `theme_dark()` to change the background
+
+```{r boxplot3 , echo=TRUE, message=FALSE, warning=FALSE}
+mtcars %>% 
+  ggplot(aes(x = factor(cyl), y = mpg)) +
+  geom_boxplot(aes(fill = factor(cyl))) +
+  theme_dark()
+```
+
+
+
+# Heat map 
+
+Example 1: `geom_bin2d()` makes regular heat map 
+
+```{r Variable_plotting1 , echo=TRUE, message=FALSE, warning=FALSE}
+movies %>% 
+  ggplot(aes(x = year, y = rating)) +
+  geom_bin2d()
+```
+
+Example 2:
+
+```{r Variable_plotting2 , echo=TRUE, message=FALSE, warning=FALSE}
+movies %>% 
+  ggplot(aes(x = year, y = rating)) +
+  geom_bin2d() + scale_fill_gradient(high = 'red', low = 'green')
+```
+
+Example 3:
+
+```{r Variable_plotting3 , echo=TRUE, message=FALSE, warning=FALSE}
+movies %>% 
+  ggplot(aes(x = year, y = rating)) +
+  geom_bin2d(binwidth = c(3,1)) + scale_fill_gradient(high = 'red', low = 'blue')
+```
+
+
+Example 4: `geom_hex()` makes heat map with hexagons 
+
+```{r Variable_plotting4 , echo=TRUE, message=FALSE, warning=FALSE}
+movies %>% 
+  ggplot(aes(x = year, y = rating)) +
+  geom_hex() + scale_fill_gradient(high = 'red', low = 'blue')
+```
+
+# density plot
+
+```{r Variable_plotting5 , echo=TRUE, message=FALSE, warning=FALSE}
+movies %>% 
+  ggplot(aes(x = year, y = rating)) +
+  geom_density2d() 
+
+movies %>% 
+  ggplot(aes(x = year, y = rating)) +
+  geom_point()
+```
+
+
+# Coordanates Faceting
+
+Example 1: use `coord_cartesian(xlim = c(1, 4), ylim = c(15,30))` to set the limits for x and y axis
+
+```{r coor_facet1 , echo=TRUE, message=FALSE, warning=FALSE}
+mpg %>% 
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_point() +
+  coord_cartesian(xlim = c(1, 4), ylim = c(15,30))
+```
+
+
+Example 2: change the length of axis with `coord_fixed`
+
+```{r coor_facet2 , echo=TRUE, message=FALSE, warning=FALSE}
+mpg %>% 
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_point() +
+  coord_fixed(ratio = 1/3)# ratio = x/y
+```
+
+Example 3: `facet_grid(.~cyl)` create multiple plots for different `cyl` values. `.~ cyl` split on x-axis
+
+```{r coor_facet3 , echo=TRUE, message=FALSE, warning=FALSE}
+mpg %>% 
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_point() +
+  facet_grid(.~cyl)
+```
+
+
+Example 4: `facet_grid(drv~.)` create multiple plots for different `cyl` values. `drv~.` split on y-axis
+Note:  `.~var_name` split on x-axis and `var_name~.` split on y-axis
+
+```{r coor_facet4 , echo=TRUE, message=FALSE, warning=FALSE}
+mpg %>% 
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_point() +
+  facet_grid(drv~.)
+```
+
+
+Example 5: `facet_grid(y~x)` split on both y-axis and x-axis
+
+```{r coor_facet5 , echo=TRUE, message=FALSE, warning=FALSE}
+mpg %>% 
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_point() +
+  facet_grid(drv~cyl)
+```
+
+
+# Themes
+
+Example 1:
+
+* theme_set(theme_minimal()) set the themes for all the plots 
+
+```{r Themes1 , echo=TRUE, message=FALSE, warning=FALSE}
+theme_set(theme_minimal())
+mtcars %>% 
+  ggplot(aes(x = wt, y = mpg)) +
+  geom_point()
+```
+
+
+Example 2: `theme_dark()`
+
+```{r Themes2 , echo=TRUE, message=FALSE, warning=FALSE}
+mtcars %>% 
+  ggplot(aes(x = wt, y = mpg)) +
+  geom_point() +
+  theme_dark()
+```
+
+
+
+Example 3: load the library `ggthemes` and use `?ggthemes` to find out more themes
+
+
+```{r Themes3 , echo=TRUE, message=FALSE, warning=FALSE}
+library(ggthemes) 
+mtcars %>% 
+  ggplot(aes(x = wt, y = mpg)) +
+  geom_point() + 
+  theme_economist()
+```
+
+# Exercise
+
+```{r as1, echo=TRUE, message=FALSE, warning=FALSE}
+df <- read.csv('Economist_Assignment_Data.csv')
+head(df)
+df %>% 
+  ggplot(aes(x = CPI, y = HDI)) +
+  geom_point(aes(color = Region))
+
+
+df %>% 
+  ggplot(aes(x = CPI, y = HDI)) +
+  geom_point(aes(color = Region), shape = 'o', size = 3)
+
+df %>% 
+  ggplot(aes(x = CPI, y = HDI)) +
+  geom_point(aes(color = Region), shape = 'o', size = 3) +
+  geom_smooth(aes(group=1))
+
+df %>% 
+  ggplot(aes(x = CPI, y = HDI)) +
+  geom_point(aes(color = Region), shape = 'o', size = 3) +
+  geom_smooth(aes(group = 1),method = 'lm', formula = y ~ log(x), se = FALSE, color = 'red')
+
+
+df %>% 
+  ggplot(aes(x = CPI, y = HDI)) +
+  geom_point(aes(color = Region), shape = 'o', size = 3) +
+  geom_smooth(aes(group=1),method = 'lm', formula = y ~ log(x),
+              se = FALSE, color = 'red') +
+  geom_text(aes(label = Country, color = Region)) 
+
+
+pointsToLabel <- c("Russia", "Venezuela", "Iraq", "Myanmar", "Sudan", "Afghanistan", "Congo", "Greece", "Argentina", "Brazil", "India", "Italy", "China", "South Africa", "Spane", "Botswana", "Cape Verde", "Bhutan", "Rwanda", "France", "United States", "Germany", "Britain", "Barbados", "Norway", "Japan", "New Zealand", "Singapore")
+
+df %>% 
+  ggplot(aes(x = CPI, y = HDI)) +
+  geom_point(aes(color = Region), shape = 'o', size = 3) +
+  geom_smooth(method = 'lm', formula = y ~ log(x),
+              se = FALSE, color = 'red') +
+   geom_text(aes(label = Country), color = "gray20", 
+                data = subset(df, Country %in% pointsToLabel),check_overlap = TRUE) +
+  theme_bw() +
+  scale_x_continuous(name = "Corruption Perceptions Index, 2011 (10=least corrupt)",limits = c(.9, 10.5),breaks=1:10) +
+  scale_y_continuous(name = "Human Development Index, 2011 (1=Best)",limits = c(0.2, 1.0)) +
+  ggtitle("Corruption and Human development") +
+  theme_economist_white()
+
+```
+
+
+Label only a part of data 
+
+1. Create a vector that contains all the labels to be showed on the plot, like pointsToLabel.
+2. In geom_text(), use data = subset(data_name, variable_name %in% vector_name, check_overlap = TRUE)
+```{r as2,echo=TRUE, message=FALSE, warning=FALSE}
+pointsToLabel <- c("Russia", "Venezuela", "Iraq", "Myanmar", "Sudan", "Afghanistan", "Congo", "Greece", "Argentina", "Brazil", "India", "Italy", "China", "South Africa", "Spane", "Botswana", "Cape Verde", "Bhutan", "Rwanda", "France", "United States", "Germany", "Britain", "Barbados", "Norway", "Japan", "New Zealand", "Singapore")
+
+df %>% 
+  ggplot(aes(x = CPI, y = HDI)) +
+  geom_point(aes(color = Region), shape = 'o', size = 3) +
+  geom_smooth(method = 'lm', formula = y ~ log(x),
+              se = FALSE, color = 'red') +
+   geom_text(aes(label = Country), color = "gray20", 
+                data = subset(df, Country %in% pointsToLabel),check_overlap = TRUE) +
+  theme_bw() +
+  scale_x_continuous(name = "Corruption Perceptions Index, 2011 (10=least corrupt)",limits = c(.9, 10.5),breaks=1:10) +
+  scale_y_continuous(name = "Human Development Index, 2011 (1=Best)",limits = c(0.2, 1.0)) +
+  ggtitle("Corruption and Human development") +
+  theme_economist_white()
+
+```
+
+
+# Plotly
+
+To use `plotly` to create interactive plots, simply add `ggplotly()` around the code. 
+
+https://plotly.com/r/ 
+
+```{r plotly1,echo=TRUE, message=FALSE, warning=FALSE}
+ggplotly(mtcars %>%
+  ggplot(aes(mpg ,wt)) +
+  geom_point())
+```
+
