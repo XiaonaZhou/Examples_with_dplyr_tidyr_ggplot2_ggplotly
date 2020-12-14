@@ -1,5 +1,5 @@
 ---
-title: "Examples on using functions from ggplot2"
+title: "Examples on using functions from ggplot2 and plotly"
 author: "Xiaona Zhou"
 date: "4/17/2020"
 output:
