@@ -22,7 +22,7 @@ This R Markdown file contains examples on how to use various functions from `dyp
 # Set up
 
 Load `dplyr` and `nycflights13` packages. 
-```{r global, warning=FALSE}
+```{r global, message=FALSE, warning=FALSE}
 library(dplyr)
 library(nycflights13)
 ```
@@ -61,6 +61,13 @@ Example 2: select cars where `mpg` > 20 and `cyl` = 6
 mtcars %>%
   filter(mpg > 20, cyl == 6)
   
+```
+
+Example 3: use `%in%` to select multiple matches for an argument
+```{r}
+flights %>%
+  filter(month %in% c(1,2,5), carrier == 'AA') %>% 
+  distinct(month)
 ```
 
 
